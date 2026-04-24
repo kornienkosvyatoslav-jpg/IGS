@@ -7,28 +7,22 @@
 IGS.S = IGS.S or {}
 
 IGS.S.COLORS = {
-	FRAME_HEADER        = Color(255,255,255), -- Фон верхушки фреймов в т.ч. пополнения счета и т.д. https://img.qweqwe.ovh/1491950958825.png
-	ACTIVITY_BG         = Color(255,255,255), -- Фон в каждой вкладке (основной) https://img.qweqwe.ovh/1509370647204.png
-	TAB_BAR             = Color(250,250,250), -- Фон таб бара https://img.qweqwe.ovh/1509370669492.png
-
-	PASSIVE_SELECTIONS  = Color(240,240,240), -- Фон панели тегов, цвет кнопки с балансом, верхушки таблиц, не выделенные кнопки https://img.qweqwe.ovh/1509370720597.png
-	INNER_SELECTIONS    = Color(255,255,255), -- Фон иконок на плашках, фон панелек последних покупок... https://img.qweqwe.ovh/1509370766148.png
-
-	SOFT_LINE           = Color(240,240,240), -- Линия между секциями, типа "Информация" и "Описание" в инфе об итеме
-	HARD_LINE           = Color(200,200,200), -- Обводки панелей
-
-	HIGHLIGHTING        = Color(0,122,255),   -- Обводка кнопок, цвет текста не активной кнопки
-	HIGHLIGHT_INACTIVE  = Color(160,160,160), -- Цвет иконки неактивной кнопки таббара, мигающая иконка на фрейме помощи https://img.qweqwe.ovh/1509371884592.png
-
-	TEXT_HARD           = Color(0,0,0),       -- Заголовки, выделяющиеся тексты https://img.qweqwe.ovh/1509372019687.png
-	TEXT_SOFT           = Color(140,140,150), -- Описания, значения чего-то
-	TEXT_ON_HIGHLIGHT   = Color(255,255,255), -- Цвет текста на выделенных кнопках
-
-	LOG_SUCCESS         = Color(76,217,100),  -- В логах пополнения цвет успешных операций
-	LOG_ERROR           = Color(220,30,70),   -- В логах пополнения цвет ошибок
-	LOG_NORMAL          = Color(0,0,0),       -- В логах пополнения обычные записи
-
-	ICON                = Color(255,255,255), -- цвет иконок на плашечках
+	FRAME_HEADER        = Color(11,  15,  24,  255),
+	ACTIVITY_BG         = Color(9,   13,  22,  255),
+	TAB_BAR             = Color(11,  15,  24,  255),
+	PASSIVE_SELECTIONS  = Color(23,  29,  47,  255),
+	INNER_SELECTIONS    = Color(15,  20,  31,  255),
+	SOFT_LINE           = Color(255, 255, 255, 15),
+	HARD_LINE           = Color(255, 255, 255, 40),
+	HIGHLIGHTING        = Color(77,  163, 255, 255),
+	HIGHLIGHT_INACTIVE  = Color(168, 177, 196, 255),
+	TEXT_HARD           = Color(244, 247, 252, 255),
+	TEXT_SOFT           = Color(168, 177, 196, 255),
+	TEXT_ON_HIGHLIGHT   = Color(255, 255, 255, 255),
+	LOG_SUCCESS         = Color(75,  181, 118, 255),
+	LOG_ERROR           = Color(201, 87,  87,  255),
+	LOG_NORMAL          = Color(244, 247, 252, 255),
+	ICON                = Color(255, 255, 255, 255),
 }
 
 -- Вариант раскраски от Павел Тумачев (vk.com/id240371602)
