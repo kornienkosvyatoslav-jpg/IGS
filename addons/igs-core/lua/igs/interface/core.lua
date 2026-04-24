@@ -68,7 +68,7 @@ function IGS.UI()
 
 	mf = uigs.Create("igs_frame", function(self)
 		-- 580 = (items_in_line * item_pan_wide) + (10(margin) * (items_in_line + 1))
-		self:SetSize(math.min(ScrW(), 800), math.min(ScrH(), 500)) -- позволяет закрыть окно на ущербных разрешениях
+		self:SetSize(math.min(ScrW() - 40, 1200), math.min(ScrH() - 40, 750)) -- позволяет закрыть окно на ущербных разрешениях
 		self:RememberLocation("igs")
 		self:MakePopup()
 
@@ -111,7 +111,7 @@ function IGS.UI()
 
 	mf.activity = uigs.Create("igs_tabbar", function(self)
 		self:SetPos(0,mf:GetTitleHeight())
-		self:SetSize(580,mf:GetTall() - mf:GetTitleHeight())
+		self:SetSize(mf:GetWide() - 240, mf:GetTall() - mf:GetTitleHeight())
 	end, mf)
 
 	-- Херня справа от лэйаута с услугами http://joxi.ru/52aQQ8Efzov120
