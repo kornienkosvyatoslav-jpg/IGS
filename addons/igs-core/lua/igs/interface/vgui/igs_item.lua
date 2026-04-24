@@ -1,277 +1,133 @@
--- Плашечка предмета с иконкой, ценой
-
---[[-------------------------------------------------------------------------
-	:SetIcon ДОЛЖЕН вызываться ДО :SetName
-	а :SetName ДОЛЖЕН вызываться ДО :SetSign
----------------------------------------------------------------------------]]
+-- IGS Item — великі темні карточки 160x210 (макет)
 local PANEL = {}
 
-local function getBottomText(ITEM, bShowDiscounted)
-	local iDiscFrom = bShowDiscounted and ITEM.discounted_from
-
-	local iReal = iDiscFrom or ITEM:GetPrice( LocalPlayer() )
-	local real = PL_MONEY(iReal)
-	return real
-end
-
-
-local font_exists
 function PANEL:Init()
-	self:SetSize(180,70)
-
-	if not font_exists then
-		surface.CreateFont("roboto_15",{
-			font     = "roboto",
-			extended = true,
-			size     = 15,
-		})
-
-		surface.CreateFont("roboto_20",{
-			font     = "roboto",
-			extended = true,
-			size     = 20,
-		})
-	end
+	self:SetSize(160, 210)
+	self.item   = nil
+	self.icobg  = nil
+	self.icon   = nil
+	self.name   = nil
+	self.sign   = nil
+	self.bottom = nil
 end
 
 function PANEL:SetItem(STORE_ITEM)
 	self.item = STORE_ITEM
 
-	self:SetIcon(STORE_ITEM:ICON())
-	self:SetName(STORE_ITEM:Name())
-	-- self:SetPrice(STORE_ITEM:GetPrice( LocalPlayer() ))
-
-	self:SetTitleColor(STORE_ITEM:GetHighlightColor()) -- nil
-
-	self:SetSign( "Действ. " .. IGS.TermToStr(STORE_ITEM:Term()) )
-
-	self:SetBottomText( getBottomText(STORE_ITEM, true) )
-
-	return self
-end
-
-function PANEL:SetName(sName)
-	(self.icon or self):SetTooltip(sName .. (self.item and "\n\n" .. self.item:Description():gsub("\n\n","\n") or ""))
-
-	self.name = self.name or uigs.Create("DLabel", function(lbl)
-		lbl:SetTall(20)
-		lbl:SetFont("roboto_20")
-		lbl:SetTextColor(self.title_color or IGS.col.TEXT_HARD)
-	end, self)
-
-	self.name:SetText(sName)
-
-	return self.name
-end
-
-function PANEL:SetSign(sSignature)
-	self.sign = self.sign or uigs.Create("DLabel", function(lbl)
-		lbl:SetTall(15)
-		lbl:SetFont("roboto_15")
-		lbl:SetTextColor(IGS.col.TEXT_SOFT)
-	end, self)
-
-	self.sign:SetText(sSignature)
-
-	return self.sign
-end
-
-function PANEL:SetBottomText(sBottomText)
-	self.bottom = self.bottom or uigs.Create("DLabel", function(lbl)
-		lbl:SetTall(15)
-		lbl:SetFont("roboto_15")
-		lbl:SetTextColor(IGS.col.TEXT_SOFT)
-		lbl:SetContentAlignment(5)
-		-- lbl:SetWrap(true)
-		-- lbl:SetAutoStretchVertical(true)
-	end, self)
-
-	self.bottom:SetText(sBottomText)
-
-	return self.bottom
-end
-
--- TODO снизу в рамочку и DOCK RIGHT вместе с док фильным сроком
--- function PANEL:SetPrice(iPrice)
--- 	self.price = iPrice
--- 	return self
--- end
-
-function PANEL:SetIcon(sIco, sMode) -- :SetIcon() для сброса
-	if not sIco then return self end
-
-	local bIsModel = sMode == true or sMode == "model"
-	local bIsMaterial = sMode == "material"
-
-	if bIsModel and not file.Exists(sIco, "GAME") then
-		sIco = "models/props_lab/huladoll.mdl"
+	if not IsValid(self.icobg) then
+		self.icobg = vgui.Create("Panel", self)
+		self.icobg.Paint = function(s, w, h)
+			draw.RoundedBox(6, 0, 0, w, h, Color(23, 29, 47, 255))
+		end
 	end
 
-	if not self.icon then
-		local icobg = uigs.Create("Panel", self)
-		icobg:SetSize(40,40)
-		icobg:SetPos(2,2)
-		icobg.Paint = IGS.S.RoundedPanel
-
-		self.icon = bIsModel and uigs.Create("DModelPanel", function(mdl)
-			mdl:Dock(FILL)
-			mdl:DockMargin(2,2,2,2)
-			mdl:SetModel(sIco)
-
-			local mn, mx = mdl.Entity:GetRenderBounds()
-			local size = 0
-			size = math.max(size, math.abs(mn.x) + math.abs(mx.x))
-			size = math.max(size, math.abs(mn.y) + math.abs(mx.y))
-			size = math.max(size, math.abs(mn.z) + math.abs(mx.z))
-
-			mdl:SetFOV(30)
-			mdl:SetCamPos(Vector(size, size, size))
-			mdl:SetLookAt((mn + mx) * 0.5)
-			mdl.LayoutEntity = function() return false end
-		end, icobg)
-
-		-- НЕ моделька (Ссылка на иконку)
-		or
-
-		uigs.Create("igs_wmat", function(ico)
-			ico:Dock(FILL)
-			ico:DockMargin(2,2,2,2)
-		end, icobg)
+	if not IsValid(self.icon) then
+		self.icon = vgui.Create("igs_wmat", self.icobg)
+		self.icon:Dock(FILL)
+		self.icon:DockMargin(4, 4, 4, 4)
 	end
 
-	if bIsModel then
-		self.icon:SetModel(sIco)
-	elseif bIsMaterial then
-		self.icon:SetMaterial(sIco)
+	local ico = STORE_ITEM:ICON()
+	if ico then self.icon:SetURL(ico) end
+
+	if not IsValid(self.name) then
+		self.name = vgui.Create("DLabel", self)
+		self.name:SetFont("igs.18")
+		self.name:SetContentAlignment(5)
+	end
+	self.name:SetText(STORE_ITEM:Name())
+	self.name:SetTextColor(STORE_ITEM:GetHighlightColor() or Color(244, 247, 252, 255))
+	self:SetTooltip(STORE_ITEM:Name())
+
+	if not IsValid(self.sign) then
+		self.sign = vgui.Create("DLabel", self)
+		self.sign:SetFont("igs.15")
+		self.sign:SetContentAlignment(5)
+		self.sign:SetTextColor(Color(168, 177, 196, 255))
+	end
+	self.sign:SetText("Действ. " .. IGS.TermToStr(STORE_ITEM:Term()))
+
+	if not IsValid(self.bottom) then
+		self.bottom = vgui.Create("DLabel", self)
+		self.bottom:SetFont("igs.17")
+		self.bottom:SetContentAlignment(5)
+		self.bottom:SetTextColor(Color(75, 181, 118, 255))
+	end
+
+	local priceStr
+	if IGS.SignPrice then
+		priceStr = IGS.SignPrice(STORE_ITEM:GetPrice(LocalPlayer()))
 	else
-		self.icon:SetURL(sIco)
+		priceStr = tostring(STORE_ITEM:GetPrice(LocalPlayer())) .. " " .. (IGS.C.CURRENCY_SIGN or "грн")
 	end
+	self.bottom:SetText(priceStr)
 
 	return self
+end
+
+-- Заглушки для сумісності з іншими частинами IGS
+function PANEL:SetName(s)       end
+function PANEL:SetSign(s)       end
+function PANEL:SetBottomText(s) end
+function PANEL:SetIcon(s, m)    end
+function PANEL:SetTitleColor(c) end
+
+function PANEL:PerformLayout(w, h)
+	local icoH = math.floor(h * 0.54)
+
+	if IsValid(self.icobg) then
+		self.icobg:SetPos(6, 6)
+		self.icobg:SetSize(w - 12, icoH)
+	end
+
+	local y = 6 + icoH + 4
+
+	if IsValid(self.name) then
+		self.name:SetPos(4, y)
+		self.name:SetSize(w - 8, 22)
+		y = y + 24
+	end
+
+	if IsValid(self.sign) then
+		self.sign:SetPos(4, y)
+		self.sign:SetSize(w - 8, 16)
+	end
+
+	if IsValid(self.bottom) then
+		self.bottom:SetPos(4, h - 26)
+		self.bottom:SetSize(w - 8, 22)
+	end
 end
 
 function PANEL:DoClick()
-	IGS.WIN.Item(self.item:UID()) -- Обязательно предварительно SetItem
+	if self.item then IGS.WIN.Item(self.item:UID()) end
 end
 
-function PANEL:PerformLayout()
-	if self.icon then
-		local x = 2 + 40 + 5
-		self.name:SetPos(x, 2)
-		self.name:SetWide(self:GetWide() - x - 2)
-	else
-		self.name:SetPos(5, 2)
-		self.name:SetWide(self:GetWide() - 2 - 5)
-	end
-
-	local nx,ny = self.name:GetPos() -- n = name
-	self.sign:SetPos(nx, ny + self.name:GetTall() + 2)
-	self.sign:SetWide(self.name:GetWide())
-
-	if self.bottom then
-		self.bottom:SetPos(2, 2 + 40 + 9)
-		self.bottom:SetWide(self:GetWide() - 2 - 2)
-	end
-
-	if self.title_color then
-		self.name:SetTextColor(self.title_color)
-	end
-end
-
-function PANEL:SetTitleColor(c)
-	self.title_color = c
-end
-
-
-function PANEL:Paint(w,h)
-	IGS.S.RoundedPanel(self, w,h)
-
-	if self.bottom then
-		local bx,by = self.bottom:GetPos()
-
-		surface.SetDrawColor( IGS.col.HARD_LINE )
-		surface.DrawLine(bx + 5,by - 2,bx + self.bottom:GetWide() - 10,by - 2)
-	end
-
+function PANEL:Paint(w, h)
+	draw.RoundedBox(8, 0, 0, w, h, Color(15, 20, 31, 255))
+	local col = self.Hovered
+		and Color(77, 163, 255, 150)
+		or  Color(255, 255, 255, 18)
+	surface.SetDrawColor(col)
+	surface.DrawOutlinedRect(0, 0, w, h, 1)
+	surface.SetDrawColor(Color(255, 255, 255, 20))
+	surface.DrawLine(6, h - 30, w - 6, h - 30)
 	return true
 end
 
---[[-------------------------------------------------------------------------
-	Жто все нужно было для отрисовки лейбла с размером скидки
-	Проблема оказалась на этапе рисования повернутого текста
-	Карточка: https://trello.com/c/Zx6qTzBn/303
-
-	Color(220,30,70) -- Штуки за биркой
-	Color(255,30,85) -- Цвет бирки
-	Color(255,255,255) -- Текст бирки
-	draw.RotatedText
----------------------------------------------------------------------------]]
--- local function draw_TextRotated(text, x, y, color, font, ang)
--- 	surface.SetFont(font)
--- 	surface.SetTextColor(color)
--- 	surface.GetTextSize(text)
-
--- 	local m = Matrix()
--- 	m:SetAngles(Angle(0, ang, 0))
--- 	m:SetTranslation(Vector(x, y, 0))
-
--- 	cam.PushModelMatrix(m)
--- 		surface.SetTextPos(0, 0)
--- 		surface.DrawText(text)
--- 	cam.PopModelMatrix()
--- end
-
--- local function draw_Poly(tVertices,tColor_)
--- 	surface.SetDrawColor(tColor_ or color_white)
--- 	draw.NoTexture()
--- 	surface.DrawPoly(tVertices)
--- end
-
--- 2250, 3000 = 25
--- local function diffNumsPercent(a, b)
--- 	return math.ceil(100 - a / (b / 100))
--- end
-
--- Вс. функцию можно назвать пиздецкой костылякой
-function PANEL:PaintOver(w,h)
+function PANEL:PaintOver(w, h)
 	if self.item and self.item.discounted_from then
-		-- local disc_price = self.item.discounted_from
-		-- local disc = diffNumsPercent(disc_price, self.item:GetPrice( LocalPlayer() ))
-
-		surface.SetDrawColor(IGS.col.TEXT_SOFT)
-
-		-- surface.DrawRect(w - 60,0,25,2)
-		-- surface.DrawRect(w - 2,h - 10 - 25,2,25)
-
-		-- draw_Poly({
-		-- 	{x = w - 60,y = 2},
-		-- 	{x = w - 60 + 25,y = 2},
-		-- 	{x = w - 2,y = h - 10 - 25},
-		-- 	{x = w - 2,y = h - 10},
-		-- }, Color(255,30,85, 255))
-
-		-- draw_TextRotated("-" .. disc .. "%", 100, -50, Color(0,255,0), "roboto_20", 9)
-		-- surface.SetTextColor(50,200,50)
-		-- surface.SetFont("roboto_20")
-
-		-- local x,y = self:GetPos()
-		-- draw.RotatedText("-" .. disc .. "%", x, y, 1, 1, 9)
-		-- draw.RotatedText("-" .. disc .. "%", x, y, 3)
-		-- draw.TextRotated("-" .. disc .. "%", 0, 0, 3)
-		-- draw.RotatedTextOnPanel("-" .. disc .. "%", 0, 0, 5, self)
-
-		local tw = draw.SimpleText(
-			getBottomText(self.item, false),"roboto_15",
-			w / 2,h - 18 - 2 - 10,IGS.col.HIGHLIGHTING,TEXT_ALIGN_CENTER
-		)
-
-		local start_x, start_h = (w - tw) / 2 * 0.8, h - (20 / 2)
-		surface.DrawLine(start_x, start_h,w - start_x, start_h)
+		local orig = tostring(self.item.discounted_from) .. " " .. (IGS.C.CURRENCY_SIGN or "грн")
+		surface.SetFont("igs.15")
+		local tw = surface.GetTextSize(orig)
+		local bx = w / 2 - tw / 2
+		local by = h - 44
+		surface.SetTextColor(Color(168, 177, 196, 130))
+		surface.SetTextPos(bx, by)
+		surface.DrawText(orig)
+		surface.SetDrawColor(Color(168, 177, 196, 100))
+		surface.DrawLine(bx, by + 7, bx + tw, by + 7)
 	end
 end
 
-
-vgui.Register("igs_item",PANEL,"DButton")
-
--- IGS.CloseUI()
--- IGS.UI()
+vgui.Register("igs_item", PANEL, "DButton")
