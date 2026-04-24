@@ -11,7 +11,8 @@ function PANEL:Add(panel,sCategory)
 
 	if not self.list[cat] then
 		self.list[cat] = uigs.Create("igs_panels_layout", self)
-		self.list[cat]:SetWide(650)
+		local pw = IsValid(self:GetParent()) and self:GetParent():GetWide() or 900
+		self.list[cat]:SetWide(math.max(pw - 10, 650))
 		self.list[cat]:SetName(sCategory)
 		self.list[cat]:DisableAlignment(self.disabled_align)
 
